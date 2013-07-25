@@ -146,7 +146,7 @@ module Spree
       ppx_auth_response = gateway.send(method, (@order.total*100).to_i, opts)
 
       paypal_account = Spree::PaypalAccount.find_by_payer_id(params[:PayerID])
-      
+
         payment.amount = ppx_auth_response.params["gross_amount"].to_f
         payment.source = paypal_account
         payment.source_type = 'Spree::PaypalAccount'
@@ -220,12 +220,10 @@ module Spree
       update_params.delete(:payments_attributes)
       if @order.update_attributes(update_params)
         fire_event('spree.checkout.update')
-        render :edit and return unless apply_coupon_code
       end
-
       load_order
       if not @order.errors.empty?
-         render :edit and return
+        render :edit and return
       end
 
       redirect_to(paypal_payment_order_checkout_url(@order, :payment_method_id => payment_method.id)) and return
