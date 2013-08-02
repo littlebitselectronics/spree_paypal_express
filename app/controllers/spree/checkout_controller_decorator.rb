@@ -449,11 +449,11 @@ module Spree
       end
 
       if I18n.locale == :en
-        text = "#{I18n.t('gateway_error')}: #{text}"
+        text = "#{Spree.t('gateway_error')}: #{text}"
       else
         # Parameterize text for i18n key
         text = text.parameterize(sep = '_')
-        text = "#{I18n.t('gateway_error')}: #{I18n.t(text)}"
+        text = "#{Spree.t('gateway_error')}: #{I18n.t(text)}"
       end
       logger.error text
       flash[:error] = text
