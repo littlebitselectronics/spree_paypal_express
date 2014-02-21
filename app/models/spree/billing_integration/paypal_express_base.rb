@@ -8,8 +8,6 @@ class Spree::BillingIntegration::PaypalExpressBase < Spree::BillingIntegration
   preference :currency, :string, :default => 'USD'
   preference :allow_guest_checkout, :boolean, :default => false
 
-  attr_accessible :preferred_login, :preferred_password, :preferred_signature, :preferred_review, :preferred_no_shipping, :preferred_currency, :preferred_allow_guest_checkout, :preferred_server, :preferred_test_mode, :preferred_cart_checkout
-
   def provider_class
     ActiveMerchant::Billing::PaypalExpressGateway
   end
