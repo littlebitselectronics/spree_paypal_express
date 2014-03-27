@@ -3,7 +3,7 @@ module Spree
     before_filter :redirect_to_paypal_express_form_if_needed, :only => [:update]
 
     def paypal_checkout
-      load_order
+      load_order_with_lock
       opts = all_opts(@order, params[:payment_method_id], 'checkout')
       opts.merge!(address_options(@order))
       @gateway = paypal_gateway
@@ -27,7 +27,7 @@ module Spree
     end
 
     def paypal_payment
-      load_order
+      load_order_with_lock
       opts = all_opts(@order, params[:payment_method_id], 'payment')
 
       if payment_method.preferred_cart_checkout
@@ -57,7 +57,7 @@ module Spree
     end
 
     def paypal_confirm
-      load_order
+      load_order_with_lock
 
       opts = { :token => params[:token], :payer_id => params[:PayerID] }.merge all_opts(@order, params[:payment_method_id],  'payment')
       gateway = paypal_gateway
@@ -135,7 +135,7 @@ module Spree
     end
 
     def paypal_finish
-      load_order
+      load_order_with_lock
 
       opts = { :token => params[:token], :payer_id => params[:PayerID] }.merge all_opts(@order, params[:payment_method_id], 'payment' )
       gateway = paypal_gateway
@@ -221,7 +221,7 @@ module Spree
       if @order.update_attributes(update_params)
         fire_event('spree.checkout.update')
       end
-      load_order
+      load_order_with_lock
       if not @order.errors.empty?
         render :edit and return
       end
