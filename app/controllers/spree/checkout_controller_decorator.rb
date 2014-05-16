@@ -1,5 +1,6 @@
 module Spree
   CheckoutController.class_eval do
+    before_filter :load_payment_method, :only => [:update]
     before_filter :redirect_to_paypal_express_form_if_needed, :only => [:update]
 
     def paypal_checkout
@@ -199,9 +200,14 @@ module Spree
       payment.log_entries.create(:details => response.to_yaml)
     end
 
+    def load_payment_method
+      @payment_method = Spree::PaymentMethod.find(params[:order][:payments_attributes].first[:payment_method_id])
+    end
+
     def redirect_to_paypal_express_form_if_needed
       return unless (params[:state] == "payment")
       return unless params[:order][:payments_attributes]
+      return unless (@payment_method.name.downcase == 'paypal')
 
       if @order.update_from_params(params, permitted_checkout_attributes)
         if params[:order][:coupon_code] and !params[:order][:coupon_code].blank? and @order.coupon_code.present?
@@ -218,10 +224,9 @@ module Spree
       end
 
       load_order_with_lock
-      payment_method = Spree::PaymentMethod.find(params[:order][:payments_attributes].first[:payment_method_id])
 
-      if payment_method.kind_of?(Spree::BillingIntegration::PaypalExpress) || payment_method.kind_of?(Spree::BillingIntegration::PaypalExpressUk)
-        redirect_to(paypal_payment_order_checkout_url(@order, :payment_method_id => payment_method.id)) and return
+      if @payment_method.kind_of?(Spree::BillingIntegration::PaypalExpress) || @payment_method.kind_of?(Spree::BillingIntegration::PaypalExpressUk)
+        redirect_to(paypal_payment_order_checkout_url(@order, :payment_method_id => @payment_method.id)) and return
       end
     end
 
