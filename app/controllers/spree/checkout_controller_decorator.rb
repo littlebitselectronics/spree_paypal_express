@@ -201,13 +201,13 @@ module Spree
     end
 
     def load_payment_method
-      @payment_method = Spree::PaymentMethod.find(params[:order][:payments_attributes].first[:payment_method_id])
+      @payment_method = Spree::PaymentMethod.find(params[:order][:payments_attributes].first[:payment_method_id]) if params[:order][:payments_attributes].present?
     end
 
     def redirect_to_paypal_express_form_if_needed
       return unless (params[:state] == "payment")
       return unless params[:order][:payments_attributes]
-      return unless (@payment_method.name.downcase == 'paypal')
+      return unless (@payment_method && @payment_method.name.downcase == 'paypal')
 
       @order.update_from_params(params, permitted_checkout_attributes) unless @order.payments.with_state('checkout')
 
