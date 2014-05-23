@@ -31,6 +31,10 @@ class Spree::BillingIntegration::PaypalExpressBase < Spree::BillingIntegration
     provider.credit(amount, response_code, :currency => preferred_currency)
   end
 
+  def cancel(*args)
+    true
+  end
+
   def find_authorization(payment)
     logs = payment.log_entries.all(:order => 'created_at DESC')
     logs.each do |log|
