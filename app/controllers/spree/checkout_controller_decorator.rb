@@ -274,7 +274,8 @@ module Spree
           :depth       => item.variant.weight }
         end
 
-      credits = order.adjustments.eligible.map do |credit|
+      adjustments = order.adjustments.eligible + order.line_item_adjustments.eligible
+      credits = adjustments.map do |credit|
         if credit.amount < 0.00
           { :name        => credit.label,
             :description => credit.label,
