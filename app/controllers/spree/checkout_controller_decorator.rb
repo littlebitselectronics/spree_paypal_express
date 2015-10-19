@@ -489,7 +489,7 @@ module Spree
     end
 
     def free_shipping?
-      @order.promotions.select { |p| p.name.eql?('Free Shipping') }.any?
+      @order.promotions.where(name: 'Free Shipping').any?
     end
   end
 end
