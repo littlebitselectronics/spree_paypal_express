@@ -318,6 +318,9 @@ module Spree
         opts[:callback_url] = spree.root_url + "paypal_express_callbacks/#{order.number}"
         opts[:callback_timeout] = 3
       elsif stage == "payment"
+        # hack to prevents Paypal from rejecting order because the order
+        # include a 'Free Shipping' promotion
+        opts[:shipping] = 0 if free_shipping?
         #hack to add float rounding difference in as handling fee - prevents PayPal from rejecting orders
         #because the integer totals are different from the float based total. This is temporary and will be
         #removed once Spree's currency values are persisted as integers (normally only 1c)
@@ -483,6 +486,10 @@ module Spree
       @shipping_order.shipments<<shipment
       @rate_hash_user = @shipping_order.rate_hash
       #TODO
+    end
+
+    def free_shipping?
+      @order.promotions.select { |p| p.name.eql?('Free Shipping') }.any?
     end
   end
 end
