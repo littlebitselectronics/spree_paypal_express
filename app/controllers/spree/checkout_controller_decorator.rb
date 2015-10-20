@@ -164,15 +164,17 @@ module Spree
           Rails.logger.error ppx_auth_response.to_yaml
         end
 
-        @order.update_attributes({:state => "complete", :completed_at => Time.now}, :without_protection => true)
+        @order.update_attributes(state: 'complete', completed_at: Time.now)
 
-        state_callback(:after) # So that after_complete is called, setting session[:order_id] to nil
+        # Unset the order id as it's completed.
+        session[:order_id] = nil
 
         # Since we dont rely on state machine callback, we just explicitly call this method for spree_store_credits
         if @order.respond_to?(:consume_users_credit, true)
           @order.send(:consume_users_credit)
         end
 
+        @order.reload
         @order.finalize!
         flash[:notice] = I18n.t(:order_processed_successfully)
         flash[:commerce_tracking] = "true"
@@ -274,8 +276,7 @@ module Spree
           :depth       => item.variant.weight }
         end
 
-      adjustments = order.adjustments.eligible + order.line_item_adjustments.eligible
-      credits = adjustments.map do |credit|
+      credits = order.all_adjustments.map do |credit|
         if credit.amount < 0.00
           { :name        => credit.label,
             :description => credit.label,
@@ -318,9 +319,6 @@ module Spree
         opts[:callback_url] = spree.root_url + "paypal_express_callbacks/#{order.number}"
         opts[:callback_timeout] = 3
       elsif stage == "payment"
-        # hack to prevents Paypal from rejecting order because the order
-        # include a 'Free Shipping' promotion
-        opts[:shipping] = 0 if free_shipping?
         #hack to add float rounding difference in as handling fee - prevents PayPal from rejecting orders
         #because the integer totals are different from the float based total. This is temporary and will be
         #removed once Spree's currency values are persisted as integers (normally only 1c)
@@ -486,10 +484,6 @@ module Spree
       @shipping_order.shipments<<shipment
       @rate_hash_user = @shipping_order.rate_hash
       #TODO
-    end
-
-    def free_shipping?
-      @order.promotions.where(name: 'Free Shipping').any?
     end
   end
 end
