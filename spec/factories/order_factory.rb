@@ -1,3 +1,5 @@
+# TODO: Remove this Factory unless it's used in a test
+
 #Factory.define(:ppx_order) do |record|
   ## associations:
   #record.association(:user, :factory => :user)

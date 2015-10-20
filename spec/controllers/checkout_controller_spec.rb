@@ -47,15 +47,11 @@ module Spree
       order.update!
     end
 
-    it 'understand paypal routes' do
-      skip('Unknown how to make this work within the scope of an engine again')
+    xit 'understand paypal routes' do
+      pending('Unknown how to make this work within the scope of an engine again')
 
       assert_routing("/orders/#{order.number}/checkout/paypal_payment", controller: 'checkout', action: 'paypal_payment', order_id: order.number)
       assert_routing("/orders/#{order.number}/checkout/paypal_confirm", controller: 'checkout', action: 'paypal_confirm', order_id: order.number)
-    end
-
-    context 'paypal_checkout from cart' do
-      skip 'feature not implemented'
     end
 
     context 'paypal_payment without auto_capture' do
