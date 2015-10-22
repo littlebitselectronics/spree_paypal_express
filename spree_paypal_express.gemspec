@@ -13,12 +13,13 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
   s.has_rdoc      = false
 
-  s.add_dependency 'spree_core', '~> 2.2'
+  s.add_dependency 'spree_core', '~> 2.2.10'
 
-  s.add_development_dependency 'capybara', '~> 1.1.3'
-  s.add_development_dependency 'factory_girl', '~> 3.6.0'
+  s.add_development_dependency 'capybara', '~> 2.1'
+  s.add_development_dependency 'coffee-rails'
+  s.add_development_dependency 'factory_girl_rails', '~> 4.5'
   s.add_development_dependency 'ffaker'
-  s.add_development_dependency 'rspec-rails',  '~> 2.11.0'
+  s.add_development_dependency 'rspec-rails',  '~> 2.13'
   s.add_development_dependency 'sass-rails'
   s.add_development_dependency 'simplecov'
   s.add_development_dependency 'sqlite3'

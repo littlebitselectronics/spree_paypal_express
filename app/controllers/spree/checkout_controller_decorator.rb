@@ -164,15 +164,17 @@ module Spree
           Rails.logger.error ppx_auth_response.to_yaml
         end
 
-        @order.update_attributes({:state => "complete", :completed_at => Time.now}, :without_protection => true)
+        @order.update_attributes(state: 'complete', completed_at: Time.now)
 
-        state_callback(:after) # So that after_complete is called, setting session[:order_id] to nil
+        # Unset the order id as it's completed.
+        session[:order_id] = nil
 
         # Since we dont rely on state machine callback, we just explicitly call this method for spree_store_credits
         if @order.respond_to?(:consume_users_credit, true)
           @order.send(:consume_users_credit)
         end
 
+        @order.reload
         @order.finalize!
         flash[:notice] = I18n.t(:order_processed_successfully)
         flash[:commerce_tracking] = "true"
@@ -274,8 +276,7 @@ module Spree
           :depth       => item.variant.weight }
         end
 
-      adjustments = order.adjustments.eligible + order.line_item_adjustments.eligible
-      credits = adjustments.map do |credit|
+      credits = order.all_adjustments.map do |credit|
         if credit.amount < 0.00
           { :name        => credit.label,
             :description => credit.label,
